@@ -1,0 +1,17 @@
+
+version = "1.0"
+
+[metadata]
+id = "toon-stats-json"
+title = "Add Machine-Readable --stats-json Flag to @toon-format/cli"
+category = "language-driven"
+language = "TypeScript"
+difficulty = "easy-medium"
+repo = "https://github.com/toon-format/toon"
+commit = "22caca377f08d737789a2ca60ab02c425a3aa947"
+
+[verifier]
+timeout_sec = 120.0
+
+[agent]
+timeout_sec = 300.0

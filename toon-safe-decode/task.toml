@@ -1,0 +1,16 @@
+version = "1.0"
+
+[metadata]
+id = "toon-safe-decode"
+title = "Atomic Output Preservation and Strict Input Validation in TOON CLI"
+category = "outcome-driven"
+language = "Node.js / TypeScript"
+difficulty = "medium"
+repo = "https://github.com/toon-format/toon"
+commit = "22caca377f08d737789a2ca60ab02c425a3aa947"
+
+[verifier]
+timeout_sec = 120.0
+
+[agent]
+timeout_sec = 300.0

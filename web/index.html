@@ -1,0 +1,462 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TOON CLI Tasks — Full-Stack Inspector</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f6f9;
+      color: #1f2937;
+    }
+    header {
+      background: #111827;
+      color: #ffffff;
+      padding: 18px 28px;
+      border-bottom: 1px solid #374151;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    header p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .info-card {
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .info-card h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: #1d4ed8;
+    }
+    .info-card p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #374151;
+    }
+    .workspace {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 820px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+    .sidebar {
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .sidebar h4 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      color: #4b5563;
+      text-transform: uppercase;
+    }
+    .task-btn {
+      width: 100%;
+      text-align: left;
+      background: #f9fafb;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .task-btn.active {
+      background: #eff6ff;
+      border-color: #2563eb;
+    }
+    .task-btn .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: bold;
+      color: #1d4ed8;
+      background: #dbeafe;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+    .task-btn .name {
+      font-weight: bold;
+      font-size: 14px;
+      color: #111827;
+    }
+    .task-btn .sub {
+      font-size: 12px;
+      color: #4b5563;
+      margin-top: 4px;
+    }
+    .detail-panel {
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .meta-line {
+      font-size: 13px;
+      color: #4b5563;
+      margin: 6px 0 12px;
+    }
+    .summary-text {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .status-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .status-card {
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+    .status-card.fail {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+    .status-card.pass {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #166534;
+    }
+    .section-box {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+    .section-box h4 {
+      margin: 0 0 10px;
+      font-size: 15px;
+    }
+    .cmd-item {
+      margin-bottom: 12px;
+    }
+    .cmd-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .copy-btn {
+      font-size: 12px;
+      padding: 3px 8px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .cmd-code {
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 9px 12px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 12.5px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .run-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .run-btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #fff;
+    }
+    .run-btn.base {
+      background: #dc2626;
+    }
+    .run-btn.solve {
+      background: #16a34a;
+    }
+    .run-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .terminal-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 12.5px;
+      white-space: pre-wrap;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .file-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .file-tab {
+      padding: 6px 11px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      border-radius: 5px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: monospace;
+    }
+    .file-tab.active {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+    }
+    pre.code-view {
+      margin: 0;
+      background: #111827;
+      color: #f3f4f6;
+      padding: 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1.45;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TOON CLI Benchmark Tasks</h1>
+    <p>Node.js + Docker Full-Stack Task Inspector &amp; Verifier</p>
+  </header>
+
+  <div class="container">
+    <!-- Top Section: Existing Project, What I Did, and Benefits -->
+    <div class="overview-grid">
+      <div class="info-card">
+        <h3>1. What Was the Existing Project?</h3>
+        <p id="existingText">Loading...</p>
+      </div>
+      <div class="info-card">
+        <h3>2. What I Did</h3>
+        <p id="whatIDidText">Loading...</p>
+      </div>
+      <div class="info-card">
+        <h3>3. Benefits From It</h3>
+        <p id="benefitsText">Loading...</p>
+      </div>
+    </div>
+
+    <!-- Main Workspace: Task Selector + Task Details -->
+    <div class="workspace">
+      <div class="sidebar">
+        <h4>Tasks</h4>
+        <div id="taskList">Loading tasks...</div>
+      </div>
+
+      <div class="detail-panel" id="detailPanel">
+        Loading task details...
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let appData = { overview: {}, tasks: [] }
+    let selectedTaskIndex = 0
+    let selectedFileName = "instruction.md"
+    let liveOutput = "Click a button above to run Docker verification directly from this UI."
+    let isRunning = false
+
+    async function loadApp() {
+      let res = await fetch("/api/data")
+      appData = await res.json()
+
+      document.getElementById("existingText").textContent = appData.overview.existingProject || ""
+      document.getElementById("whatIDidText").textContent = appData.overview.whatIDid || ""
+      document.getElementById("benefitsText").textContent = appData.overview.benefits || ""
+
+      render()
+    }
+
+    function render() {
+      let listEl = document.getElementById("taskList")
+      listEl.innerHTML = appData.tasks.map((task, idx) => `
+        <button class="task-btn ${idx === selectedTaskIndex ? "active" : ""}" onclick="selectTask(${idx})">
+          <div class="tag">${task.category} &bull; ${task.difficulty}</div>
+          <div class="name">${task.id}</div>
+          <div class="sub">${task.title}</div>
+        </button>
+      `).join("")
+
+      let task = appData.tasks[selectedTaskIndex]
+      if (!task) return
+
+      let fileNames = Object.keys(task.files)
+      if (!fileNames.includes(selectedFileName)) {
+        selectedFileName = fileNames[0]
+      }
+
+      let detailEl = document.getElementById("detailPanel")
+      detailEl.innerHTML = `
+        <h2 style="margin:0;">${task.title}</h2>
+        <div class="meta-line">
+          Repo: <code>${task.repo}</code> | Commit: <code>${task.commit.slice(0, 12)}</code>
+        </div>
+        <div class="summary-text">${task.summary}</div>
+
+        <div class="status-row">
+          <div class="status-card fail">
+            <strong>Base Repo Check:</strong><br/>${task.baseStatus}
+          </div>
+          <div class="status-card pass">
+            <strong>With Solution (solve.sh):</strong><br/>${task.solveStatus}
+          </div>
+        </div>
+
+        <div class="section-box">
+          <h4>Commands to Start &amp; Verify This Task</h4>
+
+          <div class="cmd-item">
+            <div class="cmd-label">
+              <span>Step 1: Build the Docker image</span>
+              <button class="copy-btn" onclick="copyText('cmd1')">Copy</button>
+            </div>
+            <div class="cmd-code" id="cmd1">${escapeHtml(task.commands.step1Build)}</div>
+          </div>
+
+          <div class="cmd-item">
+            <div class="cmd-label">
+              <span>Step 2: Run tests on unmodified base repo (expected to fail)</span>
+              <button class="copy-btn" onclick="copyText('cmd2')">Copy</button>
+            </div>
+            <div class="cmd-code" id="cmd2">${escapeHtml(task.commands.step2TestBase)}</div>
+          </div>
+
+          <div class="cmd-item">
+            <div class="cmd-label">
+              <span>Step 3: Apply solve.sh and run tests (expected Reward: 1)</span>
+              <button class="copy-btn" onclick="copyText('cmd3')">Copy</button>
+            </div>
+            <div class="cmd-code" id="cmd3">${escapeHtml(task.commands.step3RunSolve)}</div>
+          </div>
+
+          <div class="cmd-item">
+            <div class="cmd-label">
+              <span>Step 4: Open an interactive shell inside the container</span>
+              <button class="copy-btn" onclick="copyText('cmd4')">Copy</button>
+            </div>
+            <div class="cmd-code" id="cmd4">${escapeHtml(task.commands.step4Shell)}</div>
+          </div>
+        </div>
+
+        <div class="section-box">
+          <h4>Run Docker Verification Live</h4>
+          <div class="run-actions">
+            <button class="run-btn base" ${isRunning ? "disabled" : ""} onclick="runVerification('${task.id}', 'base')">
+              Run Base Repo Test (Should Fail)
+            </button>
+            <button class="run-btn solve" ${isRunning ? "disabled" : ""} onclick="runVerification('${task.id}', 'solve')">
+              Run solve.sh + Tests (Should Pass)
+            </button>
+          </div>
+          <div class="terminal-box">${escapeHtml(liveOutput)}</div>
+        </div>
+
+        <div class="section-box">
+          <h4>Task Files</h4>
+          <div class="file-tabs">
+            ${fileNames.map((fname) => `
+              <button class="file-tab ${fname === selectedFileName ? "active" : ""}" onclick="selectFile('${fname}')">${fname}</button>
+            `).join("")}
+          </div>
+          <pre class="code-view">${escapeHtml(task.files[selectedFileName] || "")}</pre>
+        </div>
+      `
+    }
+
+    function selectTask(idx) {
+      selectedTaskIndex = idx
+      selectedFileName = "instruction.md"
+      liveOutput = "Click a button above to run Docker verification directly from this UI."
+      render()
+    }
+
+    function selectFile(fname) {
+      selectedFileName = fname
+      render()
+    }
+
+    function copyText(elementId) {
+      let text = document.getElementById(elementId).textContent
+      navigator.clipboard.writeText(text)
+    }
+
+    async function runVerification(taskId, mode) {
+      isRunning = true
+      liveOutput = "Running Docker container for " + taskId + " (" + mode + ")... please wait..."
+      render()
+
+      try {
+        let res = await fetch("/api/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ taskId, mode })
+        })
+        let data = await res.json()
+        liveOutput = "Exit Code: " + data.exitCode + "\n\n" + data.output
+      } catch (err) {
+        liveOutput = "Request error: " + err.message
+      }
+
+      isRunning = false
+      render()
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+    }
+
+    loadApp()
+  </script>
+</body>
+</html>
